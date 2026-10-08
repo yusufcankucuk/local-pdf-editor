@@ -1,101 +1,140 @@
-# PDF editörü
+# Yerel PDF editörü
 
-Kişisel bilgi istemeyen, dosyaları cihazda işleyen yerel PDF editörü. Belge görüntüleme, sayfa işlemleri, metin/görsel düzenleme ve yerel OCR içerir.
+PDF dosyalarını tarayıcı içinde görüntüleyen ve düzenleyen yerel bir uygulama. Hesap açma veya belge yükleme servisi yoktur; PDF içeriği cihazda işlenir. Türkçe arayüz, dijital PDF düzenleme ve Türkçe/İngilizce yerel OCR içerir.
 
-## Çalıştırma
+## Kurulum ve çalıştırma
 
-Node.js **22.13 veya üzeri** (24 önerilir) ve npm gerekir.
+[Node.js](https://nodejs.org/) **24 LTS** ve Git kurulu olmalıdır.
 
 ```sh
+git clone https://github.com/yusufcankucuk/local-pdf-editor.git
+cd local-pdf-editor
 npm ci
 npm run dev
 ```
 
-Terminalde yazan yerel adresi açın (varsayılan `http://127.0.0.1:5173`). Başlangıçta uygulamayla gelen üç sayfalık örnek PDF görünür. “PDF aç” düğmesi veya sürükle-bırak ile kendi belgenizi açabilirsiniz.
+Terminalde gösterilen adresi tarayıcıda açın; varsayılan adres **http://127.0.0.1:5173/**. Uygulama örnek belgeyle başlar. Sunucuyu kapatmak için terminalde `Ctrl+C` kullanın.
+
+İlk kurulum paketleri indirmek için internet gerektirir. Kurulum tamamlandıktan sonra yerel sunucu, PDF düzenleme ve OCR internet olmadan çalışır. PDF.js ve OCR worker/model/font kaynakları kurulum sırasında yerel olarak hazırlanır.
+
+Üretim sürümünü yerelde denemek için:
 
 ```sh
-npm test          # Dosya kabulü ve rotasyon kontrolü
-npm run build    # TypeScript kontrolü + üretim çıktısı
-npm run preview  # dist/ çıktısını yerelde görüntüleme
+npm run build
+npm run preview
 ```
 
-İlk npm kurulumu paket indirmek için internet kullanır. Kurulum sonrasında geliştirme sunucusu ve belge işlemleri internet gerektirmez. `npm ci`, PDF.js'in font, cmap ve wasm dosyalarını yerel `public/pdf-assets/` klasörüne kopyalar. Worker derlemeye dahil edilir. Üretim çıktısı `dist/` klasöründedir; bir yerel statik HTTP sunucusu ile çalıştırılır, `file://` üzerinden açılması desteklenmez.
+Preview adresi varsayılan olarak **http://127.0.0.1:4173/**. Uygulama bir HTTP sunucusu üzerinden açılmalıdır; `index.html` dosyasına çift tıklayarak `file://` üzerinden çalıştırılmaz.
 
-## Bu sürümde çalışanlar
+## İlk belgeyi düzenleme
 
-PDF açma (100 MB'a kadar), şifreli belgeleri salt okunur görüntüleme, metin seçme/arama, içindekiler gezinmesi, zoom ve sayfa küçük resimleri.
+1. **PDF aç** düğmesine basın veya PDF'i pencereye sürükleyin. Dosya sınırı 100 MB'dır.
+2. Soldaki küçük resimlerden sayfayı seçin; yakınlaştırma ve sayfa gezinme araçlarını kullanın.
+3. Üst çubuktan yapmak istediğiniz işlemi seçin. Eklenen veya düzenlemeye alınan nesneye tıklayarak ayarlarını değiştirin.
+4. **Geri al / Yinele** ile işlemleri geri alın veya tekrar uygulayın.
+5. **PDF indir** ile düzenlenmiş belgeyi yeni bir dosya olarak indirin. **Orijinali indir** başlangıç dosyasını verir.
 
-Sayfa döndürme/taşıma/çoğaltma/silme, boş sayfa, birleştirme/çıkarma, undo/redo ve düzenlenmiş PDF indirme. Metin, vurgu, şekil, çizim, PNG/JPEG ve görsel imza eklenebilir. Metin aracını seçip sayfaya tıklayın; sağdaki panelden metni, yerel veya cihazdan yüklenen yazı tipini, boyutu ve rengi düzenleyin. Eklemeler taşınır, kopyalanır ve silinir. Temel PDF formları doldurulur ve çıktıda sabitlenir. Yazdırma görünümü yerel PDF sekmesi açar.
+Orijinal dosyanın üzerine yazılmaz. Belgeler ve düzenlemeler açık sekmenin belleğinde tutulur; sekmeyi kapatmadan veya sayfayı yenilemeden önce çıktıyı indirin.
 
-Orijinal dosya korunur. Gömülü görsellere doğrudan tıklayın; mevcut yatay paragraflar için “PDF içeriğini düzenle” aracını seçin. Paragraf yerel Noto fontuyla yeniden yazılır; görsel taşınır, boyutlandırılır, değiştirilir veya silinir. Saydamlığı ayarlanabilir. Kalın/eğik metin desteklenir. Dikdörtgen/elips/üçgen/çizgi/ok ayrı ikonlardan seçilip çizilir. Eklemeleri öne/arkaya alın; seçili nesneyi ok tuşlarıyla 1, Shift+ok ile 10 PDF birimi taşıyın. Vurgu, şekil ve görseller köşelerinden boyutlandırılır. Türkçe/İngilizce yerel OCR ile taranmış baskı metni düzenlenebilir. Güvenli karartma ürünü ve sertifikalı dijital imza desteklenmez. Döndürülmüş ve aynalanmış görseller saydamlıkları korunarak düzenlenir. Üst üste gelen gömülü görseller ayrı nesneler olarak düzenlenir. Satır içi (inline) görseller, desen içindeki görseller ve vektör çizimleri henüz ayrı görsel olarak düzenlenmez. Belge içindekileri dışa aktarılan dosyada korunmaz.
+## Metin düzenleme
 
-## Gizlilik
+**Yeni metin:** Metin aracını seçip sayfaya tıklayın. Sağdaki panelden içeriği, yazı tipini, boyutu, rengi, kalın/eğik biçimi, paragraf genişliğini ve satır aralığını ayarlayın.
 
-Backend, hesap sistemi, analitik, CDN veya harici font yoktur. Seçilen PDF ve dosya adı yalnızca tarayıcı belleğinde tutulur. Sayfa yenileme oturumu bitirir. Service worker ve çevrimdışı yeniden başlatma desteği henüz eklenmedi; yerel HTTP sunucusu internet olmadan kullanılabilir.
+**Dijital PDF'deki metin:** **PDF içeriğini düzenle** aracını açın ve kesikli çerçeveli paragrafı seçin. Satırlar hizalama ve stil bilgisine göre bir paragrafta toplanır. Sağ panelden düzeltin. Karmaşık sütunlarda gruplama kusursuz olmayabilir; kaynak font varsayılan olarak yerel Noto fontuyla yeniden yazılır.
 
-## Geliştiriciler ve agentlar
+Metin paneli masaüstünde sağda, dar ekranda sayfanın altında yer alır.
 
-- [Agent rehberi](AGENTS.md): çalışma ve gizlilik kuralları
-- [Devir notu](docs/HANDOFF.md): güncel durum, doğrulama ve devam noktası
-- [Mimari](docs/ARCHITECTURE.md): katmanlar, veri akışı ve kararlar
-- [Tasarım](docs/DESIGN.md): görsel kimlik ve etkileşim ilkeleri
-- [Yol haritası](docs/ROADMAP.md): geliştirme aşamaları ve kabul kriterleri
+## Taranmış PDF ve staj defteri
 
-Örnek belge projeye özgü bir tasarım örneğidir. Yeniden üretmek için `python3 scripts/create-demo.py` çalıştırın; harici kütüphane gerekmez.
+Taramadaki yazı bir görselin parçasıdır. Önce OCR ile tanıyıp ardından düzenleyin:
 
-## Tarayıcı doğrulaması
+1. **Taranmış yazıyı tanı** tüm açık sayfayı analiz eder. Tablolu veya çizgili belgelerde **Yazı alanını seç** ile yalnızca düzeltilecek hücreyi ya da cümleyi sürükleyerek seçin; alan daha yüksek çözünürlükte tanınır.
+2. **Analiz düzeni** seçin: genel sayfa için **Otomatik belge**, tek hücre için **Tek paragraf / hücre**, dağınık içerik için **Tablo / dağınık yazı**.
+3. Gerekirse **Tarama kontrastını iyileştir** ve **Yazı yönü** seçeneklerini ayarlayıp **Alanı yeniden tanı** düğmesine basın.
+4. **Seçim birimi** menüsünden Paragraf, Satır veya Kelime seçin. Bulunan yazıya tıklayıp sağ panelde düzeltin. Sarı çerçeveli sonuçlar düşük güvenlidir; tanınan metni kontrol edin.
+5. Birden fazla bloğu bir arada yazmak için **Seçili alanı birlikte düzenle** kullanın. OCR okuyamazsa **Alanı elle yaz** seçilen dikdörtgeni temizleyip yeni metin oluşturur. Tablo çizgilerini, imzaları ve görselleri bu seçimin dışında bırakın.
 
-İsteğe bağlı `playwright-cli` kuruluysa, geliştirme veya preview sunucusu açıkken:
+Tanıma tek başına belgeyi değiştirmez. Düzenlenen kelimelerin eski raster pikselleri temizlenir; yeni metin PDF çıktısına yazılır. **Kâğıt rengini koru** düz arka plan rengini yaklaşık doldurur; desen, gölge veya kesişen çizgileri onarmaz. El yazısı, çok bulanık tarama ve küçük açıyla eğik yazıda doğruluk garanti edilmez.
+
+OCR açık sayfada çalışır. Sayfaya döndüğünüzde tekrar tanıma gerekebilir. Tanınan tüm metin otomatik olarak aranabilir bir katmana dönüştürülmez; düzenlenen metin indirilen PDF yeniden açıldığında seçilebilir ve aranabilir.
+
+## Görseller, şekiller ve imza
+
+- **Gömülü görseller:** Görsele doğrudan tıklayın veya **PDF görsellerini göster** listesinden seçin. Taşıyın, köşelerinden boyutlandırın, değiştirin, saydamlığını ayarlayın veya silin. Kaynak görselin çizim sırası korunur.
+- **Taramadaki fotoğraf:** **Taramadan görsel alanı seç** ile fotoğrafın çevresini sürükleyin. Oluşan görsel taşınabilir, boyutlandırılabilir ve silinebilir. Önceden düzenlenen alanla kesişen seçimler engellenir.
+- **Yeni görsel:** Görsel ekleme aracıyla PNG/JPEG dosyası seçip sayfaya yerleştirin.
+- **Şekiller:** Dikdörtgen, elips, üçgen, çizgi veya ok ikonunu seçip sürükleyerek çizin. Vurgulama ve serbest çizim de vardır.
+- **İmza:** Yerel olarak çizin veya görsel dosyası ekleyin. Bu özellik kriptografik dijital imza oluşturmaz.
+
+Araç penceresindeki noktalı tutamacı sürükleyerek pencereyi taşıyabilirsiniz. Tutamaç odaktayken ok tuşları 10 px, Shift+ok 20 px taşır; nesne hareket etmez. Metin paneli sağda sabittir.
+
+## Font ekleme
+
+Noto Sans, Serif ve Mono uygulamayla gelir. Metin panelindeki **Times New Roman · cihazdan**, **Arial · cihazdan** ve **Georgia · cihazdan** seçenekleri cihazda kurulu fontu kullanır. Tarayıcı yerel font erişimi için izin isteyebilir.
+
+Cihaz font erişimi desteklenmiyorsa **Font dosyası ekle** ile TTF/OTF yükleyin. Kalın/eğik kullanmak için ilgili font varyantlarını da seçin. Gerçek font çıktıya gömülür; gömme veya alt küme izni kısıtlı fontlar reddedilir. Font dosyaları yalnızca açık sekmenin belleğinde kalır. Times New Roman gibi ticari fontlar bu depoyla dağıtılmaz.
+
+## Diğer işlemler ve çalışma alanı
+
+Sayfa döndürme, taşıma, çoğaltma, silme, boş sayfa ekleme, PDF birleştirme ve sayfa çıkarma desteklenir. Temel form değerleri doldurulabilir; çıktı üzerinde sabitlenir. Metin arama, içindekiler gezinmesi ve yazdırma araçları da vardır.
+
+Eflatun düzenleme alanının sağındaki **X**, araç satırlarını ve OCR seçim kutularını gizler; çalışan tanımayı iptal eder. Belge değişiklikleri korunur. Üst çubuktaki **Düzenleme araçlarını göster** veya **PDF içeriğini düzenle** ile tekrar açın.
+
+## Klavye kısayolları
+
+macOS'ta `Ctrl` yerine `⌘` kullanın.
+
+| Kısayol | İşlem |
+| --- | --- |
+| Ctrl+O | PDF aç |
+| Ctrl+S | Düzenlenmiş PDF indir |
+| Ctrl+F | Belge içinde ara |
+| Ctrl+Z | Geri al |
+| Ctrl+Shift+Z / Ctrl+Y | Yinele |
+| Ctrl+P | Yazdır |
+| Escape | Seçimi veya alan seçimini kapat |
+| Delete / Backspace | Seçili nesneyi sil |
+| Ok tuşları | Seçili nesneyi 1 PDF birimi taşı |
+| Shift+ok | Seçili nesneyi 10 PDF birimi taşı |
+
+Metin kutuları kendi yazma ve geri alma davranışını korur.
+
+## Gizlilik ve mevcut sınırlar
+
+Belge işleme cihazda gerçekleşir. Backend, hesap, analitik, CDN veya harici OCR servisi yoktur. Belgeler, dosya adları ve font dosyaları LocalStorage/IndexedDB'de saklanmaz.
+
+- Şifreli PDF'ler şifre girilerek **salt okunur** açılır.
+- Inline/desen görselleri ve vektör nesneler ayrı görsel olarak düzenlenmez. Karmaşık clip/blend kaynaklarında uyumluluk sınırlıdır.
+- Kaynak gömülü fontun ve karışık paragraf stillerinin birebir korunması desteklenmez.
+- İçindekiler/outline gezinmesi vardır; outline çıktı dosyasında korunmaz.
+- Güvenli karartma, sertifikalı dijital imza ve PDF sıkıştırma henüz yoktur.
+- Service worker ve çevrimdışı yeniden başlatma desteği yoktur. Yerel sunucu kurulumdan sonra internet olmadan çalışabilir.
+
+## Geliştirme ve doğrulama
+
+```sh
+npm test
+npm run build
+```
+
+GitHub Actions push ve pull request üzerinde Node 24 ile temiz kurulum, test ve derleme çalıştırır. Tarayıcı kontrolleri için yerel sunucu açıkken, ayrıca `playwright-cli` kurulu olmalıdır:
 
 ```sh
 mkdir -p artifacts
 playwright-cli -s=pdf-editor open http://127.0.0.1:5173 --browser=chrome
 playwright-cli -s=pdf-editor run-code --filename=tests/browser-smoke.js
+playwright-cli -s=pdf-editor run-code --filename=tests/browser-workspace-controls.js
 playwright-cli -s=pdf-editor close
 ```
 
-Kontrol; gerçek PDF çizimi, sayfa/zoom/döndürme, dosya indirme, geçersiz/bozuk dosya hataları ve şifreli belge akışı, mevcut belgeyi koruma, klavye gezinme, 320 ve 390 px görünüm ve cihaz dışına ağ isteği yapılmamasını kapsar. `artifacts/` altında ekran görüntüleri ve indirilen orijinal PDF oluşur. Şifreli test dosyası yalnızca uyumluluk örneğidir; şifresi `test` ve gerçek kullanıcı verisi içermez.
+Diğer senaryolar `tests/browser-*.js` dosyalarındadır. Cihaz fontu testleri ilgili fontların kurulu olmasını gerektirir. Test PDF'leri sentetiktir ve kullanıcı verisi içermez; test çıktıları `artifacts/` altında tutulur ve depoya eklenmez.
 
-`tests/browser-smoke.js`, CLI'nin beklediği tek bir fonksiyon ifadesidir; modül olarak import edilmez ve sonunda noktalı virgül bulunmamalıdır.
+- [Agent rehberi](AGENTS.md)
+- [Mimari](docs/ARCHITECTURE.md)
+- [Devir notları](docs/HANDOFF.md)
+- [Tasarım](docs/DESIGN.md)
+- [Yol haritası](docs/ROADMAP.md)
 
-Bağlamsal düzenleme testi: `playwright-cli -s=pdf-editor run-code --filename=tests/browser-context-tools.js`. Diğer akışlar `tests/browser-pages.js`, `tests/browser-annotations.js`, `tests/browser-navigation-forms.js` içindedir.
+## Lisanslar
 
-MuPDF içerik motoru yerel Web Worker içinde çalışır; AGPL-3.0-or-later lisans koşulları için [bağımlılıklar](docs/DEPENDENCIES.md) dosyasını okuyun. Yeni akışlar `tests/browser-revision-three.js`, `tests/browser-native-images.js` ve `tests/browser-image-tools.js` ve `tests/browser-ocr-paragraphs.js` ile kontrol edilir.
-
-## Taranmış metin ve PDF içeriği
-
-- “Taranmış yazıyı tanı” açık sayfayı cihaz içinde Türkçe + İngilizce OCR ile okur. Dil modelleri ve WASM uygulamayla gelir; CDN isteği yapılmaz. İlerleme ve iptal kontrolü vardır.
-- Bulunan paragrafı seçin, metni kontrol edip düzeltin. Yazı tipi/boyutu, paragraf genişliği ve satır aralığı sağdaki metin panelinden değişir. Değiştirilen satırların eski raster pikselleri kaldırılır; sayfanın kalanı korunur. Tanıma tek başına belgeyi değiştirmez; yalnızca düzenlenen bloklar çıktıda gerçek metne dönüşür.
-- Dijital PDF'de “PDF içeriğini düzenle” metni satır satır yerine hizalama, stil ve satır aralığına göre paragraf olarak seçer. Kaynakta paragraf anlamı bulunmadığından karmaşık sütunlar/tablolar yanlış gruplanabilir. Orijinal gömülü font yerine yerel Noto fontu kullanılır.
-- “PDF görsellerini göster” sayfanın gömülü görsellerini önizlemelerle listeler. Görseli seçip taşıyın, boyutlandırın, değiştirin veya silin. Taramadaki fotoğraf için “Taramadan görsel alanı seç” ile çevresini sürükleyin; seçilen alan taşınır, boyutlandırılır ve silinir. Önceki düzenlemeyle kesişen bir alan tekrar kesilemez.
-
-OCR baskı metni için tasarlanmıştır; yan taramalarda 90° adımlı yön seçilebilir. El yazısı, küçük açıyla eğik yazı ve bulanık taramalarda doğru sonuç garanti edilmez. Yazı tanıma orijinal sayfada çalışır; daha önce kaldırılan alanlar tekrar seçime sunulmaz. Sayfaya döndüğünüzde gerekirse tanımayı yeniden çalıştırın. Kâğıt rengini koru seçeneği düz zeminin rengini yaklaşık doldurur; desen/gölge ve kesişen tablo çizgilerini onarmaz. Bu işlem güvenli karartma ürünü olarak sunulmaz. Tanınan metnin kaynak aramasına eklenmesi henüz yoktur; düzenlenen metin çıktıyı yeniden açınca aranabilir.
-
-Gömülü görsel yalnızca seçildiğinde kaynak çizimi değişmez. Boyutlandırma/değiştirme özgün çizim sırasını korur; arka plandaki görsel öndeki yazıları kapatmaz. Kaynak görsellerin katman sırası sabittir; kopyaları normal ekleme olur. Kaynak clip sınırları korunur, bazı kırpılmış görseller taşındığında bu sınırlar görünür alanı daraltabilir. Metin paneli dar ekranda sayfanın altında yer alır. Yeni regresyon kontrolü: `tests/browser-revision-six.js`.
-
-### Staj defteri ve tablolu taramalar
-
-“Yazı alanını seç” ile yalnızca düzeltilecek hücre veya cümlenin çevresini sürükleyin. “Tek paragraf / hücre” düzenini, dağınık alanlarda “Tablo / dağınık yazı” seçeneğini deneyin. Alan daha yüksek çözünürlükte yerel olarak tanınır. “Seçim birimi”nden Kelime, Satır veya Paragraf seçin; metne tıklayıp sağ panelde düzeltin. Ayarı değiştirdikten sonra “Alanı yeniden tanı” kullanılabilir. Yan taranmış sayfa için Yazı yönünü ayarlayın.
-
-“Seçili alanı birlikte düzenle” tanınan blokları bir metne toplar. OCR okuyamıyorsa “Alanı elle yaz” seçilen dikdörtgeni temizleyip yeni metin oluşturur; tablo çizgileri, görseller ve imzaları bu seçimin dışında bırakın. Sarı çerçeveli sonuçlar düşük güvenlidir; metni kontrol edin. El yazısı ve çok bulanık taramalarda doğruluk garantisi yoktur.
-
-Metin panelindeki “Times New Roman · cihazdan”, “Arial · cihazdan”, “Georgia · cihazdan” seçenekleri tarayıcının yerel font erişimiyle çalışır. Tarayıcı font erişim izni isteyebilir ve font cihazda kurulu olmalıdır. Alternatif “Font dosyası ekle” ile TTF/OTF dosyalarını yükleyin; kalın/eğik için ilgili varyantları da seçin. Gerçek font çıktıya gömülür; fontlar yalnızca açık sekmenin belleğinde kalır ve uygulama bu proprietary fontları dağıtmaz. Kısıtlı gömme izni bulunan fontlar reddedilir.
-
-Yeni kontroller: `tests/browser-notebook-ocr.js`, `tests/browser-system-fonts.js`, `tests/browser-ocr-orientation.js`. Sentetik örnekler `node scripts/create-notebook-fixture.mjs` ile üretilir.
-
-### Araçları kapatma ve pencereyi taşıma
-
-Eflatun alanın sağındaki X, düzenleme araçlarını ve OCR seçim kutularını gizler; çalışan tanımayı iptal eder. Belgedeki değişiklikler korunur. Üst çubuktaki “Düzenleme araçlarını göster” veya “PDF içeriğini düzenle” ile tekrar açın.
-
-Görsel ve diğer nesnelerin araç penceresindeki noktalı tutamacı sürükleyerek pencereyi taşıyın. Tutamaç odaktayken ok tuşları 10 px, Shift+ok 20 px taşır; nesne hareket etmez. Aynı nesnenin ayarları değişirken pencere yerini korur. Metin paneli sağ tarafta sabittir.
-
-## GitHub'a gönderme
-
-Yerel depo `main` dalındadır. Kaynaklar ve sentetik test dosyaları sürüm kontrolüne alınır; belgeler, test indirmeleri, cihaz fontları, kurulum/derleme çıktıları ve yerel ayarlar depoya eklenmez. GitHub'da boş bir repo oluşturduktan sonra kendi adresinizle:
-
-```sh
-git remote add origin https://github.com/KULLANICI/REPO.git
-git push -u origin main
-```
-
-GitHub Actions push/PR üzerinde Node 24 ile `npm ci`, `npm test`, `npm run build` çalıştırır. Tarayıcı testleri yerel sunucu ve Playwright CLI ile ayrıca çalıştırılır; cihaz fontu testleri ilgili fontların kurulu olmasını gerektirir. Dağıtım lisansları için [bağımlılık notlarını](docs/DEPENDENCIES.md) okuyun.
+MuPDF AGPL-3.0-or-later, Noto fontları SIL OFL 1.1 ve Tesseract Apache-2.0 lisanslıdır. Kullanıcı tarafından eklenen fontların kendi lisansları geçerlidir. Dağıtım koşulları ve lisans metinleri için [bağımlılık notlarını](docs/DEPENDENCIES.md) okuyun. Bu belge tüm projeye ayrıca bir lisans atamaz.
