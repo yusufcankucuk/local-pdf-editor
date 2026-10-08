@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+public/pdf-assets/
+.env
+.env.*
+!.env.example
+.DS_Store
+artifacts/
+.playwright-cli/
+
+public/ocr-assets/
+.codex/
+.agents/
+.aws/
+coverage/
+*.log

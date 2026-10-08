@@ -1,0 +1,46 @@
+async page => {
+  await page.addInitScript(() => { window.confirm = () => true; window.addEventListener('beforeunload', event => event.stopImmediatePropagation(), {capture:true}); });
+  await page.evaluate(() => {window.confirm=()=>true;window.addEventListener('beforeunload',event=>event.stopImmediatePropagation(),{capture:true});});
+
+  const button = name => page.getByRole('button',{name,exact:true});
+  const assert = (condition,message) => {if(!condition) throw new Error(message);};
+  await page.reload();
+  await page.locator('.textLayer span').first().waitFor();
+  await button('Metin').click();
+  await page.locator('.annotation-overlay').click({position:{x:90,y:250}});
+  await page.getByRole('textbox',{name:'Seçili metni düzenle'}).fill('Türkçe: İmza, çalışma, ölçü.');
+  await button('Bitti').click();
+  await page.locator('.annotation-overlay text').waitFor();
+  assert((await page.locator('.annotation-overlay text').textContent()).includes('çalışma'), 'Text annotation must appear');
+  await button('Vurgula').click();
+  const box = await page.locator('.annotation-overlay').boundingBox();
+  await page.mouse.move(box.x+60,box.y+100); await page.mouse.down(); await page.mouse.move(box.x+280,box.y+128,{steps:8}); await page.mouse.up();
+  await page.locator('.annotation-overlay rect').first().waitFor();
+  await button('Dikdörtgen çiz').click();
+  await page.mouse.move(box.x+60,box.y+300); await page.mouse.down(); await page.mouse.move(box.x+260,box.y+360,{steps:8}); await page.mouse.up();
+  await button('Serbest çizim').click();
+  await page.mouse.move(box.x+80,box.y+380); await page.mouse.down(); await page.mouse.move(box.x+200,box.y+410,{steps:12}); await page.mouse.up();
+  await page.locator('.annotation-overlay polyline').waitFor();
+  await button('Görsel ekle').click();
+  await page.locator('input[aria-label="Eklenecek görsel seç"]').setInputFiles({name:'dot.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aXioAAAAASUVORK5CYII=','base64')});
+  await page.locator('.image-ready').waitFor();
+  await page.locator('.annotation-overlay').click({position:{x:300,y:500}});
+  await page.locator('.annotation-overlay image').waitFor();
+  await button('İmza').click();
+  const pad = await page.locator('.signature-pad canvas').boundingBox();
+  await page.mouse.move(pad.x+10,pad.y+15);await page.mouse.down();await page.mouse.move(pad.x+100,pad.y+30,{steps:10});await page.mouse.up();
+  await button('İmzayı kullan').click();
+  await page.locator('.annotation-overlay').click({position:{x:80,y:500}});
+  assert(await page.locator('.annotation-overlay image').count() === 2, 'Image and signature must both appear');
+  await button('Geri al').click();
+  assert(await page.locator('.annotation-overlay image').count() === 1, 'Undo must remove signature');
+  await button('İleri al').click();
+  await button('Sayfayı saat yönünde döndür').click();
+  await page.waitForFunction(()=>document.querySelector('.main-paper canvas').width>document.querySelector('.main-paper canvas').height);
+  await page.locator('.annotation-overlay text').waitFor();
+  const pending = page.waitForEvent('download');await button('PDF indir').click();
+  const download = await pending;await download.saveAs('artifacts/annotated.pdf');
+  await page.waitForFunction(()=>document.querySelector('.editor-notice')?.textContent.includes('PDF indirildi'));
+  await page.screenshot({path:'artifacts/annotations.png'});
+  return {passed:true,checks:['Turkish text','highlight','rectangle','freehand','image','signature','annotation undo/redo','rotated overlay alignment','annotated export']};
+}
